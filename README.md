@@ -176,7 +176,7 @@ This README summarizes all configuration and setup steps for Week 1 backend task
 - NestJS project successfully initialized
 - PostgreSQL connected and verified
 - .env configured
-- Auth and QR modules ready for development
+- Auth and QR modules ready for development (install)
 
 ---
 

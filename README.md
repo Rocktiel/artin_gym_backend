@@ -96,3 +96,90 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+################################################################# ozan's updates
+
+
+## Setup Steps
+
+### 1. Clone the repository
+git clone https://github.com/Rocktiel/artin_gym_backend.git
+cd artin_gym_backend
+
+
+### 2. Install dependencies
+npm install
+
+
+### 3. PostgreSQL setup
+1. PostgreSQL 16+ must be installed.
+2. Service should be active:
+   Get-Service *postgres*
+3. Create a new database:
+   CREATE DATABASE artin_gym;
+
+---
+
+## .env Configuration
+Add an `.env` file to the root directory:
+PORT=3000
+NODE_ENV=development
+
+DB_HOST=127.0.0.1
+DB_PORT=5433
+DB_USER=postgres
+DB_PASS=postgres
+DB_NAME=artin_gym
+
+JWT_SECRET=supersecretkey
+JWT_EXPIRES=15m
+
+
+---
+
+## Migration and Seed
+
+Run migration commands:
+npm run typeorm:generate
+npm run typeorm:run
+
+
+(Optional) Seed sample data:
+npm run seed
+
+---
+
+## Run the Application
+
+npm run start:dev
+
+Expected output:
+[NestApplication] Nest application successfully started
+
+---
+
+## Key API Endpoints
+
+| Endpoint | Method | Description |
+|-----------|--------|--------------|
+| /auth/register | POST | Register new tenant and admin |
+| /auth/login | POST | User login (returns JWT) |
+| /qr/generate | POST | Generate QR code |
+| /qr/verify | POST | Verify QR and record check-in |
+
+---
+
+## Developer Notes
+This README summarizes all configuration and setup steps for Week 1 backend tasks:
+- NestJS project successfully initialized
+- PostgreSQL connected and verified
+- .env configured
+- Auth and QR modules ready for development (install)
+
+---
+
+## License
+MIT License © 2025 — Artin GYM Project
+

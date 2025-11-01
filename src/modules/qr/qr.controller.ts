@@ -12,14 +12,16 @@ import { UserTypes } from 'src/common/enums/UserTypes.enums';
 import { RolesGuard } from 'src/common/guard/roles.guard';
 import { BaseResponse } from 'src/base/response/base.response';
 import { ResponseMessages } from 'src/common/enums/ResponseMessages.enum';
+import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 
 @Controller('qr')
-@UseGuards(RolesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class QrController {
   constructor(private readonly qrService: QrService) {}
 
   // QR token üretir
   @Post('generate/:memberId')
+  @Roles(UserTypes.MEMBER)
   async generateQr(@Param('memberId') memberId: string) {
     try {
       const token = await this.qrService.generateQrToken(+memberId);

@@ -7,11 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from 'src/common/typeorm/user.entity';
+
 import { LoginRequestDto } from './dto/request/login.request.dto';
 import { JwtPayload } from 'src/common/payloads/jwt.payload';
+
+import { TenantEntity, UserEntity } from 'src/common/typeorm';
 import { UserTypes } from 'src/common/enums/UserTypes.enums';
-import { TenantEntity } from 'src/common/typeorm';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +33,7 @@ export class AuthService {
     if (!user.isActive) throw new UnauthorizedException('User not active');
 
     const passwordMatch = await bcrypt.compare(dto.password, user.password);
-    if (!passwordMatch) throw new UnauthorizedException('Invalid password');
+    if (!passwordMatch) throw new UnauthorizedException('User not found');
 
     const payload: JwtPayload = {
       sub: user.id.toString(),
@@ -40,9 +41,7 @@ export class AuthService {
       tenant_id: user.tenant.id.toString(),
     };
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '1h',
-    });
+    const accessToken = await this.jwtService.signAsync(payload);
 
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);

@@ -39,7 +39,11 @@ export class AuthController {
     try {
       const result = await this.authService.login(loginDto);
       return new BaseResponse(result, true, ResponseMessages.LOGIN_SUCCESS);
-    } catch {
+    } catch (error) {
+      if (error.getStatus) {
+        throw error;
+      }
+      // Diğer beklenmedik hatalar için genel UnauthorizedException
       throw new UnauthorizedException(ResponseMessages.LOGIN_FAILED);
     }
   }

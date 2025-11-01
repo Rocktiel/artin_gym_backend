@@ -12,6 +12,7 @@ export enum DtoField {
   DAY = 'DAY',
   START_TIME = 'START_TIME',
   END_TIME = 'END_TIME',
+  TENANT_NAME = 'TENANT_NAME',
 }
 
 // Doğrulama türleri

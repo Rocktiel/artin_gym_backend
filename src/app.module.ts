@@ -5,11 +5,11 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { LoggerService } from './common/logger/logger.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import databaseConfig from './common/config/database.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import jwtConfig from './common/config/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
+import databaseConfig from './common/config/database.config';
+import jwtConfig from './common/config/jwt.config';
 
 @Module({
   imports: [
@@ -18,7 +18,18 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
       isGlobal: true,
       load: [databaseConfig, jwtConfig],
     }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+      }),
+      inject: [ConfigService],
+    }),
+
     PassportModule,
+
+    // Global JWT setup
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (
@@ -40,23 +51,14 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
       global: true,
     }),
 
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        ...configService.get('database'),
-      }),
-      inject: [ConfigService],
-    }),
+    //Feature modules
     AuthModule,
     QrModule,
   ],
-  controllers: [],
+
   providers: [
     LoggerService,
-    {
-      provide: APP_FILTER,
-      useClass: AllExceptionsFilter,
-    },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
 export class AppModule {}

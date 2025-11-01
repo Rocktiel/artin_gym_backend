@@ -1,6 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import entities from '../typeorm';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default registerAs(
@@ -13,6 +14,7 @@ export default registerAs(
     password: process.env.DB_PASSWORD || 'postgres',
     database: process.env.DB_NAME || 'my_app',
 
+    logging: false,
     entities,
     synchronize: !isProduction,
   }),

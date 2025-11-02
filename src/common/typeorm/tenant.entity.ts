@@ -9,8 +9,8 @@ export class TenantEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 150, unique: true })
   name: string;
 
-  //   @Column({ name: 'plan_type', type: 'varchar', length: 50 })
-  //   planType: string;
+  // @Column({ name: 'plan_type', type: 'varchar', length: 50 })
+  // planType: string;
 
   @Column({ type: 'varchar', length: 50, default: 'active' })
   status: string;

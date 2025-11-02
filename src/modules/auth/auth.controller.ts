@@ -50,7 +50,7 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Yeni tenant ve admin kaydı oluşturur' })
+  @ApiOperation({ summary: 'Yeni tenant oluşturur' })
   @ApiResponse({
     status: 201,
     description: 'Kayıt başarılı',
@@ -71,7 +71,11 @@ export class AuthController {
 
       return new BaseResponse(result, true, ResponseMessages.REGISTER_SUCCESS);
     } catch (error) {
-      throw new BadRequestException(ResponseMessages.REGISTER_FAILED);
+      if (error.getStatus) {
+        throw error;
+      }
+      // Diğer beklenmedik hatalar için genel UnauthorizedException
+      throw new UnauthorizedException(ResponseMessages.REGISTER_FAILED);
     }
   }
 }

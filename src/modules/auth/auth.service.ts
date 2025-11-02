@@ -57,17 +57,47 @@ export class AuthService {
     };
   }
 
+  // Yeni tenant oluşturur
   async register(email: string, password: string, tenantName: string) {
-    if (await this.userRepository.findOne({ where: { email } }))
-      throw new BadRequestException('Email used');
-    const tenant = await this.tenants.save({ name: tenantName });
+    // Email kontrolü
+    const existingUser = await this.userRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new BadRequestException('Bu e-posta adresi zaten kullanılmakta.');
+    }
+
+    // Tenant kontrolü
+    const existingTenant = await this.tenants.findOne({
+      where: { name: tenantName },
+    });
+    if (existingTenant) {
+      throw new BadRequestException(
+        `“${tenantName}” adında bir işletme zaten mevcut.`,
+      );
+    }
+
+    // Yeni tenant oluştur
+    const tenant = this.tenants.create({ name: tenantName });
+    await this.tenants.save(tenant);
+
+    // Parola hash
     const hash = await bcrypt.hash(password, 10);
-    const user = await this.userRepository.save({
+
+    // Kullanıcı oluştur
+    const user = this.userRepository.create({
       email,
       password: hash,
       role: UserTypes.COMPANY_ADMIN,
-      tenant_id: tenant.id,
+      tenant,
     });
-    return { id: user.id, email: user.email };
+
+    // Kaydet
+    const savedUser = await this.userRepository.save(user);
+
+    return {
+      id: savedUser.id,
+      email: savedUser.email,
+    };
   }
 }

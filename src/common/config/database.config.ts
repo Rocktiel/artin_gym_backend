@@ -16,6 +16,6 @@ export default registerAs(
 
     logging: false,
     entities,
-    synchronize: !isProduction,
+    synchronize: false,
   }),
 );

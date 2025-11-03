@@ -17,11 +17,12 @@ export class UserEntity extends BaseEntity {
   // Kullanıcının bağlı olduğu tenant(salon).
   @ManyToOne(() => TenantEntity, (tenant) => tenant.users, {
     onDelete: 'CASCADE',
+    nullable: true,
   })
   @JoinColumn({ name: 'tenant_id' })
   tenant: TenantEntity;
 
-  @Column({ name: 'tenant_id', type: 'uuid' })
+  @Column({ name: 'tenant_id', type: 'uuid', nullable: true })
   tenantId: string;
 
   // Hesap aktif mi?

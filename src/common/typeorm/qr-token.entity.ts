@@ -16,12 +16,15 @@ export class QrToken extends BaseEntity {
   })
   member: MemberEntity;
 
+  // JWT'nin benzersiz kimlik belirleyicisi (jti)
   @Column({ unique: true })
   jti: string;
 
+  // JWT'nin geçerlilik süresi
   @Column({ type: 'timestamptz' })
   exp: Date;
 
+  // Token'ın kullanıldığı zaman
   @Column({ type: 'timestamptz', nullable: true })
   used_at?: Date;
 }

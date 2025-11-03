@@ -11,8 +11,9 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginRequestDto } from './dto/request/login.request.dto';
 import { JwtPayload } from 'src/common/payloads/jwt.payload';
 
-import { TenantEntity, UserEntity } from 'src/common/typeorm';
+import { MemberEntity, TenantEntity, UserEntity } from 'src/common/typeorm';
 import { UserTypes } from 'src/common/enums/UserTypes.enums';
+import { RegisterMemberRequestDto } from './dto/request/register-member.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(TenantEntity) private tenants: Repository<TenantEntity>,
+    @InjectRepository(MemberEntity)
+    private readonly memberRepository: Repository<MemberEntity>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -35,10 +38,15 @@ export class AuthService {
     const passwordMatch = await bcrypt.compare(dto.password, user.password);
     if (!passwordMatch) throw new UnauthorizedException('User not found');
 
+    if (!user.tenant && user.role !== UserTypes.SUPER_ADMIN) {
+      // SUPER_ADMIN değilse ve tenant yoksa (ki olmamalı) hata verilebilir
+      throw new UnauthorizedException('Tenant information missing');
+    }
+
     const payload: JwtPayload = {
       sub: user.id.toString(),
       role: user.role,
-      tenant_id: user.tenant.id.toString(),
+      ...(user.tenant ? { tenant_id: user.tenant.id.toString() } : {}),
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
@@ -46,13 +54,24 @@ export class AuthService {
     user.lastLoginAt = new Date();
     await this.userRepository.save(user);
 
+    if (user.role === UserTypes.SUPER_ADMIN) {
+      return {
+        success: true,
+        access_token: accessToken,
+        user: {
+          id: user.id,
+          role: user.role,
+        },
+      };
+    }
+
     return {
       success: true,
       access_token: accessToken,
       user: {
         id: user.id,
         role: user.role,
-        tenant: user.tenant.name,
+        tenant_id: user.tenantId,
       },
     };
   }
@@ -97,6 +116,53 @@ export class AuthService {
 
     return {
       id: savedUser.id,
+      email: savedUser.email,
+    };
+  }
+
+  // Yeni member kaydı oluşturur
+  async registerMember(
+    dto: RegisterMemberRequestDto,
+    tenantId: string, // Yöneticinin ait olduğu tenant ID'si
+  ) {
+    // 1. E-posta Kontrolü
+    if (await this.userRepository.findOne({ where: { email: dto.email } })) {
+      throw new BadRequestException('Bu e-posta adresi zaten kullanılmakta.');
+    }
+
+    // 2. Parola Hash
+    const hash = await bcrypt.hash(dto.password, 10);
+
+    // 3. Kullanıcı Oluştur (Role: MEMBER)
+    const newUser = this.userRepository.create({
+      email: dto.email,
+      password: hash,
+      role: UserTypes.MEMBER, //Rol MEMBER olacak
+      tenantId: tenantId,
+      isActive: true, // Varsayılan olarak aktif
+    });
+    const savedUser = await this.userRepository.save(newUser);
+
+    // 4. Member Oluştur
+    const newMember = this.memberRepository.create({
+      tenantId: tenantId,
+      userId: savedUser.id.toString(),
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      phoneNumber: dto.phoneNumber,
+      dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
+      emergencyContact: dto.emergencyContact,
+      status: 'active',
+      physicalData: dto.physicalData,
+      // diğer alanlar...
+    });
+    await this.memberRepository.save(newMember);
+
+    // 5. Başarı Yanıtı
+    return {
+      memberId: newMember.id,
+      userId: savedUser.id,
+      tenantId: tenantId,
       email: savedUser.email,
     };
   }

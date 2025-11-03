@@ -13,15 +13,15 @@ import { RolesGuard } from 'src/common/guard/roles.guard';
 import { BaseResponse } from 'src/base/response/base.response';
 import { ResponseMessages } from 'src/common/enums/ResponseMessages.enum';
 import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
+import { VerifyQrRequestDto } from './dto/request/verify-qr.request.dto';
 
 @Controller('qr')
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class QrController {
   constructor(private readonly qrService: QrService) {}
 
   // QR token üretir
   @Post('generate/:memberId')
-  @Roles(UserTypes.MEMBER)
   async generateQr(@Param('memberId') memberId: string) {
     try {
       const token = await this.qrService.generateQrToken(+memberId);
@@ -37,13 +37,13 @@ export class QrController {
 
   // QR doğrulaması yapar
   @Post('verify')
-  async verifyQr(@Body('token') token: string) {
-    if (!token) {
+  async verifyQr(@Body() dto: VerifyQrRequestDto) {
+    if (!dto.token) {
       throw new UnauthorizedException('QR token missing.');
     }
 
     try {
-      const result = await this.qrService.verifyQrToken(token);
+      const result = await this.qrService.verifyQrToken(dto.token);
       return new BaseResponse(result, true, ResponseMessages.SUCCESS);
     } catch (error) {
       return new BaseResponse(

@@ -2,10 +2,12 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   HttpCode,
   HttpStatus,
   Post,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
@@ -15,6 +17,12 @@ import { LoginRequestDto } from './dto/request/login.request.dto';
 import { RegisterRequestDto } from './dto/request/register.request.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { BaseErrorResponse } from 'src/base/response/baseError.response';
+import { RegisterMemberRequestDto } from './dto/request/register-member.request.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserTypes } from 'src/common/enums/UserTypes.enums';
+import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
+import { RolesGuard } from 'src/common/guard/roles.guard';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -76,6 +84,32 @@ export class AuthController {
       }
       // Diğer beklenmedik hatalar için genel UnauthorizedException
       throw new UnauthorizedException(ResponseMessages.REGISTER_FAILED);
+    }
+  }
+
+  @Post('register-member')
+  @UseGuards(JwtAuthGuard, RolesGuard) // Önce kimlik doğrula, sonra rolü kontrol et
+  @Roles(UserTypes.COMPANY_ADMIN) // Sadece COMPANY_ADMIN çağırabilir
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Mevcut bir işletmeye yeni üye kaydeder' })
+  async registerMember(
+    @Body() dto: RegisterMemberRequestDto,
+    @GetUser('tenant_id') tenantId: string, // Token'dan tenant ID'yi al
+  ): Promise<BaseResponse<any>> {
+    try {
+      // 🛑 KONTROL: Eğer tenantId yoksa (SUPER_ADMIN gibi), yetki hatası fırlat
+      if (!tenantId) {
+        throw new ForbiddenException(
+          ResponseMessages.FORBIDDEN_NO_TENANT_ACCESS,
+        );
+      }
+      const result = await this.authService.registerMember(dto, tenantId);
+      return new BaseResponse(result, true, 'Üye başarıyla kaydedildi.');
+    } catch (error) {
+      if (error.getStatus) {
+        throw error;
+      }
+      throw new BadRequestException('Üye kaydı başarısız oldu.');
     }
   }
 }

@@ -27,6 +27,7 @@ export enum ValidationMessage {
   IS_STRONG_PASSWORD = 'IS_STRONG_PASSWORD',
   NOT_VALID = 'NOT_VALID',
   MUST_BE_EMAIL = 'MUST_BE_EMAIL',
+  IS_STRING = 'IS_STRING',
 }
 
 export function getValidationMessage(

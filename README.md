@@ -96,3 +96,110 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+################################################################# ozan's updates
+
+## Setup Steps
+
+### 1. Clone the repository
+
+```bash
+$ git clone https://github.com/Rocktiel/artin_gym_backend.git
+$ cd artin_gym_backend
+```
+
+### 2. Install dependencies
+
+```bash
+$ npm install
+```
+
+### 3. PostgreSQL setup
+
+1. PostgreSQL 16+ must be installed.
+2. Service should be active:
+   Get-Service _postgres_
+3. Create a new database:
+   CREATE DATABASE artin_gym;
+
+---
+
+## .env Configuration
+
+Add an `.env` file to the root directory:
+
+```bash
+$ NODE_ENV=development
+$ SWAGGER_PASSWORD=123456789
+$ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+$
+$ PORT=3000
+$
+$ APP_URL=http://localhost:3000
+$
+$ DB_PASSWORD=123456
+$ DB_USERNAME=postgres
+$ DB_NAME=artin_gym
+$ DB_HOST=localhost
+$ DB_PORT=5432
+$ DB_TYPE=postgres
+$
+$ DB_SSL=false
+$ DB_POOL_MAX=10
+$
+$ JWT_SECRET=super_secret_key
+$ JWT_ACCESS_EXPIRES_IN=15m
+$ JWT_REFRESH_EXPIRES_IN=30d
+```
+
+---
+
+## Migration
+
+Run migration commands:
+
+```bash
+$ npm run migration:generate -- src/db/migrations/[MigrationName]
+$ npm run migration:run
+```
+
+---
+
+## Run the Application
+
+```bash
+$ npm run start:dev
+```
+
+Expected output:
+
+```bash
+$[NestApplication] Nest application successfully started
+```
+
+---
+
+## API Endpoints
+
+- `POST /auth/register` – Register new tenant and admin
+- `POST /auth/register-member` – Register member
+- `POST /auth/login` – User login
+- `POST /qr/generate` – Generate QR code
+- `POST /qr/verify` – Verify QR and record check-in
+
+---
+
+## Developer Notes
+
+This README summarizes all configuration and setup steps for Week 1 backend tasks:
+
+- NestJS project successfully initialized
+- PostgreSQL connected and verified
+- .env configured
+- Auth and QR modules ready for development (install)
+
+---
+
+## License
+
+MIT License © 2025 — Artin GYM Project

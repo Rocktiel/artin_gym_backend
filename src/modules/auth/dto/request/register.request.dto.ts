@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MinLength, MaxLength } from 'class-validator';
+import { IsNotEmpty, MinLength, MaxLength } from 'class-validator';
 import {
   getValidationMessage,
   DtoField,
@@ -11,33 +11,27 @@ export class RegisterRequestDto {
     example: 'example@company.com',
     description: 'Kullanıcının e-posta adresi',
   })
-  @IsEmail(
-    {},
-    {
-      message: getValidationMessage(DtoField.EMAIL, ValidationMessage.IS_EMAIL),
-    },
-  )
   @MinLength(11, {
     message: getValidationMessage(
-      DtoField.EMAIL,
+      DtoField.USERNAME,
       ValidationMessage.MIN_LENGTH,
       { value: 11 },
     ),
   })
   @MaxLength(50, {
     message: getValidationMessage(
-      DtoField.EMAIL,
+      DtoField.USERNAME,
       ValidationMessage.MAX_LENGTH,
       { value: 50 },
     ),
   })
   @IsNotEmpty({
     message: getValidationMessage(
-      DtoField.EMAIL,
+      DtoField.USERNAME,
       ValidationMessage.IS_NOT_EMPTY,
     ),
   })
-  email: string;
+  username: string;
 
   @ApiProperty({
     example: 'StrongPass123!',

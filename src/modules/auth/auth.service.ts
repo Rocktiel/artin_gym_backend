@@ -28,7 +28,7 @@ export class AuthService {
 
   async login(dto: LoginRequestDto) {
     const user = await this.userRepository.findOne({
-      where: { email: dto.email },
+      where: { username: dto.username },
       relations: ['tenant'],
     });
 
@@ -77,13 +77,13 @@ export class AuthService {
   }
 
   // Yeni tenant oluşturur
-  async register(email: string, password: string, tenantName: string) {
+  async register(username: string, password: string, tenantName: string) {
     // Email kontrolü
     const existingUser = await this.userRepository.findOne({
-      where: { email },
+      where: { username },
     });
     if (existingUser) {
-      throw new BadRequestException('Bu e-posta adresi zaten kullanılmakta.');
+      throw new BadRequestException('Bu username zaten kullanılmakta.');
     }
 
     // Tenant kontrolü
@@ -105,7 +105,7 @@ export class AuthService {
 
     // Kullanıcı oluştur
     const user = this.userRepository.create({
-      email,
+      username,
       password: hash,
       role: UserTypes.COMPANY_ADMIN,
       tenant,
@@ -116,7 +116,7 @@ export class AuthService {
 
     return {
       id: savedUser.id,
-      email: savedUser.email,
+      username: savedUser.username,
     };
   }
 
@@ -125,9 +125,15 @@ export class AuthService {
     dto: RegisterMemberRequestDto,
     tenantId: string, // Yöneticinin ait olduğu tenant ID'si
   ) {
-    // 1. E-posta Kontrolü
-    if (await this.userRepository.findOne({ where: { email: dto.email } })) {
-      throw new BadRequestException('Bu e-posta adresi zaten kullanılmakta.');
+    // 1. PhoneNumber Kontrolü
+    if (
+      await this.userRepository.findOne({
+        where: { username: dto.phoneNumber },
+      })
+    ) {
+      throw new BadRequestException(
+        'Bu PhoneNumber adresi zaten kullanılmakta.',
+      );
     }
 
     // 2. Parola Hash
@@ -135,7 +141,7 @@ export class AuthService {
 
     // 3. Kullanıcı Oluştur (Role: MEMBER)
     const newUser = this.userRepository.create({
-      email: dto.email,
+      username: dto.phoneNumber,
       password: hash,
       role: UserTypes.MEMBER, //Rol MEMBER olacak
       tenantId: tenantId,
@@ -163,7 +169,7 @@ export class AuthService {
       memberId: newMember.id,
       userId: savedUser.id,
       tenantId: tenantId,
-      email: savedUser.email,
+      username: savedUser.username,
     };
   }
 }

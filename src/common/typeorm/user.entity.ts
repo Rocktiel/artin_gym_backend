@@ -4,11 +4,11 @@ import { TenantEntity } from './tenant.entity';
 import { BaseEntity } from 'src/base/entity/base.entity';
 
 @Entity({ name: 'users' })
-@Index(['email'], { unique: true })
+@Index(['username'], { unique: true })
 export class UserEntity extends BaseEntity {
-  // Kullanıcının e-posta adresi.Tüm sistemde unique olmalı.
+  // Kullanıcının username.Tüm sistemde unique olmalı.
   @Column({ type: 'varchar', length: 150, unique: true })
-  email: string;
+  username: string;
 
   // Hash'lenmiş parola (bcrypt ile).
   @Column({ name: 'password', type: 'varchar', length: 255 })
@@ -29,7 +29,7 @@ export class UserEntity extends BaseEntity {
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
 
-  // En son giriş zamanı.
+  // En son giriş zamanı.Sisteme giriş.
   @Column({ name: 'last_login_at', type: 'timestamp', nullable: true })
   lastLoginAt?: Date;
 

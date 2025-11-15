@@ -4,13 +4,10 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsDateString,
-  IsEmail,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  Length,
-  Matches,
   MaxLength,
   Min,
   MinLength,
@@ -43,62 +40,62 @@ export class PhysicalDataDto {
   @Min(10, { message: 'Kilo, 10 kg den küçük olamaz.' })
   weightKg?: number;
 
-  @ApiPropertyOptional({
-    example: 18.2,
-    description: 'Vücut Yağ Oranı (%)',
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: 'Vücut Yağ Oranı sayı olmalıdır.' })
-  @Min(1, { message: 'Yağ oranı 1 den küçük olamaz.' })
-  bodyFatPercentage?: number;
+  // @ApiPropertyOptional({
+  //   example: 18.2,
+  //   description: 'Vücut Yağ Oranı (%)',
+  //   type: Number,
+  // })
+  // @IsOptional()
+  // @IsNumber({}, { message: 'Vücut Yağ Oranı sayı olmalıdır.' })
+  // @Min(1, { message: 'Yağ oranı 1 den küçük olamaz.' })
+  // bodyFatPercentage?: number;
 
-  @ApiPropertyOptional({
-    example: 75,
-    description: 'Üyenin Hedef Kilosu (kg)',
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: 'Hedef kilo sayı olmalıdır.' })
-  targetWeightKg?: number;
+  // @ApiPropertyOptional({
+  //   example: 75,
+  //   description: 'Üyenin Hedef Kilosu (kg)',
+  //   type: Number,
+  // })
+  // @IsOptional()
+  // @IsNumber({}, { message: 'Hedef kilo sayı olmalıdır.' })
+  // targetWeightKg?: number;
 }
 
 export class RegisterMemberRequestDto {
   // --- 1. EMAIL ---
-  @ApiProperty({
-    example: 'newmember@mail.com',
-    description: 'Üyenin e-posta adresi (Login için kullanılır)',
-  })
-  @IsString({
-    message: getValidationMessage(DtoField.EMAIL, ValidationMessage.IS_STRING),
-  })
-  @IsEmail(
-    {},
-    {
-      message: getValidationMessage(DtoField.EMAIL, ValidationMessage.IS_EMAIL),
-    },
-  )
-  @MinLength(11, {
-    message: getValidationMessage(
-      DtoField.EMAIL,
-      ValidationMessage.MIN_LENGTH,
-      { value: 11 },
-    ),
-  })
-  @MaxLength(50, {
-    message: getValidationMessage(
-      DtoField.EMAIL,
-      ValidationMessage.MAX_LENGTH,
-      { value: 50 },
-    ),
-  })
-  @IsNotEmpty({
-    message: getValidationMessage(
-      DtoField.EMAIL,
-      ValidationMessage.IS_NOT_EMPTY,
-    ),
-  })
-  email: string;
+  // @ApiProperty({
+  //   example: 'newmember@mail.com',
+  //   description: 'Üyenin e-posta adresi (Login için kullanılır)',
+  // })
+  // @IsString({
+  //   message: getValidationMessage(DtoField.EMAIL, ValidationMessage.IS_STRING),
+  // })
+  // @IsEmail(
+  //   {},
+  //   {
+  //     message: getValidationMessage(DtoField.EMAIL, ValidationMessage.IS_EMAIL),
+  //   },
+  // )
+  // @MinLength(11, {
+  //   message: getValidationMessage(
+  //     DtoField.EMAIL,
+  //     ValidationMessage.MIN_LENGTH,
+  //     { value: 11 },
+  //   ),
+  // })
+  // @MaxLength(50, {
+  //   message: getValidationMessage(
+  //     DtoField.EMAIL,
+  //     ValidationMessage.MAX_LENGTH,
+  //     { value: 50 },
+  //   ),
+  // })
+  // @IsNotEmpty({
+  //   message: getValidationMessage(
+  //     DtoField.EMAIL,
+  //     ValidationMessage.IS_NOT_EMPTY,
+  //   ),
+  // })
+  // email: string;
 
   // --- 2. PASSWORD ---
   @ApiProperty({
@@ -202,6 +199,4 @@ export class RegisterMemberRequestDto {
   @ValidateNested() // İç içe doğrulama için gerekli
   @Type(() => PhysicalDataDto) // class-transformer ile tipi belirtiyoruz
   physicalData?: PhysicalDataDto;
-
-  // (Diğer member alanlarını buraya ekleyebilirsiniz: dateOfBirth, vb.)
 }

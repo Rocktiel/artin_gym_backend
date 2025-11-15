@@ -66,13 +66,13 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Geçersiz istek veya email kullanılmış',
+    description: 'Geçersiz istek veya USERNAME kullanılmış',
     type: BaseErrorResponse,
   })
   async register(@Body() dto: RegisterRequestDto): Promise<BaseResponse<any>> {
     try {
       const result = await this.authService.register(
-        dto.email,
+        dto.username,
         dto.password,
         dto.tenantName,
       );
@@ -97,7 +97,7 @@ export class AuthController {
     @GetUser('tenant_id') tenantId: string, // Token'dan tenant ID'yi al
   ): Promise<BaseResponse<any>> {
     try {
-      // 🛑 KONTROL: Eğer tenantId yoksa (SUPER_ADMIN gibi), yetki hatası fırlat
+      // KONTROL: Eğer tenantId yoksa (SUPER_ADMIN gibi), yetki hatası fırlat
       if (!tenantId) {
         throw new ForbiddenException(
           ResponseMessages.FORBIDDEN_NO_TENANT_ACCESS,

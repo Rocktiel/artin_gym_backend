@@ -6,7 +6,7 @@ import { MemberEntity } from './member.entity';
 import { EntryType, EntryStatus } from '../enums/Entry.enums';
 
 @Entity({ name: 'entries' })
-@Index(['tenantId', 'timestampUtc'])
+@Index(['status', 'entryType', 'timestampUtc'])
 export class EntryEntity extends BaseEntity {
   // Hangi işletmeye ait olduğu
   @ManyToOne(() => TenantEntity, { onDelete: 'CASCADE' })
@@ -37,7 +37,7 @@ export class EntryEntity extends BaseEntity {
     type: 'enum',
     enum: EntryType,
     name: 'entry_type',
-    comment: 'Giriş (ENTRY) veya Çıkış (EXIT) olayı mı?',
+    comment: 'Giriş (ENTRY) veya Çıkış (EXIT)',
   })
   entryType: EntryType;
 

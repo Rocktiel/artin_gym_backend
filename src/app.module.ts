@@ -10,9 +10,11 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import databaseConfig from './common/config/database.config';
 import jwtConfig from './common/config/jwt.config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,

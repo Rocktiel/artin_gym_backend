@@ -25,7 +25,11 @@ export class QrController {
   async generateQr(@Param('memberId') memberId: string) {
     try {
       const token = await this.qrService.generateQrToken(+memberId);
-      return new BaseResponse({ token }, true, ResponseMessages.SUCCESS);
+      return new BaseResponse(
+        token,
+        true,
+        ResponseMessages.SUCCESS_QR_TOKEN_GENERATED,
+      );
     } catch (error) {
       return new BaseResponse(
         null,
@@ -44,7 +48,7 @@ export class QrController {
 
     try {
       const result = await this.qrService.verifyQrToken(dto.token);
-      return new BaseResponse(result, true, ResponseMessages.SUCCESS);
+      return new BaseResponse(result, true, ResponseMessages.SUCCESS_VERIFY_QR);
     } catch (error) {
       return new BaseResponse(
         null,

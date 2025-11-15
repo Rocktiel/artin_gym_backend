@@ -67,9 +67,9 @@ export class MemberEntity extends BaseEntity {
   physicalData?: {
     heightCm?: number;
     weightKg?: number;
-    bodyFatPercentage?: number;
-    targetWeightKg?: number;
-    bmi?: number;
+    // bodyFatPercentage?: number;
+    // targetWeightKg?: number;
+    // bmi?: number;
     // İleride eklenecek tüm diğer ölçümler buraya eklenecek
   };
 

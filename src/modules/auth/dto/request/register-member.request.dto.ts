@@ -98,39 +98,39 @@ export class RegisterMemberRequestDto {
   // email: string;
 
   // --- 2. PASSWORD ---
-  @ApiProperty({
-    example: 'M.emBer123!',
-    description: 'Üyenin şifresi',
-    minLength: 6,
-    maxLength: 50,
-  })
-  @IsString({
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.IS_STRING,
-    ),
-  })
-  @MinLength(6, {
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.MIN_LENGTH,
-      { value: 6 },
-    ),
-  })
-  @MaxLength(50, {
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.MAX_LENGTH,
-      { value: 50 },
-    ),
-  })
-  @IsNotEmpty({
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.IS_NOT_EMPTY,
-    ),
-  })
-  password: string;
+  // @ApiProperty({
+  //   example: 'M.emBer123!',
+  //   description: 'Üyenin şifresi',
+  //   minLength: 6,
+  //   maxLength: 50,
+  // })
+  // @IsString({
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.IS_STRING,
+  //   ),
+  // })
+  // @MinLength(6, {
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.MIN_LENGTH,
+  //     { value: 6 },
+  //   ),
+  // })
+  // @MaxLength(50, {
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.MAX_LENGTH,
+  //     { value: 50 },
+  //   ),
+  // })
+  // @IsNotEmpty({
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.IS_NOT_EMPTY,
+  //   ),
+  // })
+  // password: string;
 
   // --- 3. FIRST NAME ---
   @ApiProperty({ example: 'Ayşe', description: 'Üyenin Adı' })

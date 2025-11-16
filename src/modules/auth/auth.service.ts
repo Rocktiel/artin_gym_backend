@@ -15,6 +15,9 @@ import { MemberEntity, TenantEntity, UserEntity } from 'src/common/typeorm';
 import { UserTypes } from 'src/common/enums/UserTypes.enums';
 import { RegisterMemberRequestDto } from './dto/request/register-member.request.dto';
 import { RegisterRequestDto } from './dto/request/register.request.dto';
+import { generateRandomPassword } from 'src/utils/random-password-generator';
+import { SmsService } from 'src/modules/sms/sms.service';
+import { formatPhoneForSms } from 'src/utils/format-phone-sms';
 
 @Injectable()
 export class AuthService {
@@ -25,6 +28,7 @@ export class AuthService {
     @InjectRepository(MemberEntity)
     private readonly memberRepository: Repository<MemberEntity>,
     private readonly jwtService: JwtService,
+    private readonly smsService: SmsService,
   ) {}
 
   async login(dto: LoginRequestDto) {
@@ -67,12 +71,11 @@ export class AuthService {
     }
 
     return {
-      success: true,
-      access_token: accessToken,
       user: {
         id: user.id,
         role: user.role,
         tenant_id: user.tenantId,
+        access_token: accessToken,
       },
     };
   }
@@ -96,17 +99,17 @@ export class AuthService {
         `“${dto.tenantName}” adında bir işletme zaten mevcut.`,
       );
     }
-
+    const phoneNumber = formatPhoneForSms(dto.phoneNumber);
     // Yeni tenant oluştur
     const tenant = this.tenants.create({
       name: dto.tenantName,
       address: dto.address,
-      phoneNumber: dto.phoneNumber,
+      phoneNumber,
     });
     await this.tenants.save(tenant);
 
     // Parola hash
-    const hash = await bcrypt.hash(dto.phoneNumber, 10);
+    const hash = await bcrypt.hash(phoneNumber, 10);
 
     // Kullanıcı oluştur
     const user = this.userRepository.create({
@@ -114,6 +117,7 @@ export class AuthService {
       password: hash,
       role: UserTypes.COMPANY_ADMIN,
       tenant,
+      phoneNumber,
     });
 
     // Kaydet
@@ -130,37 +134,39 @@ export class AuthService {
     dto: RegisterMemberRequestDto,
     tenantId: string, // Yöneticinin ait olduğu tenant ID'si
   ) {
-    // 1. PhoneNumber Kontrolü
+    const phoneNumber = formatPhoneForSms(dto.phoneNumber);
+    // PhoneNumber Kontrolü
     if (
       await this.userRepository.findOne({
-        where: { username: dto.phoneNumber },
+        where: { phoneNumber },
       })
     ) {
-      throw new BadRequestException(
-        'Bu PhoneNumber adresi zaten kullanılmakta.',
-      );
+      throw new BadRequestException('Bu PhoneNumber zaten kullanılmakta.');
     }
 
-    // 2. Parola Hash
-    const hash = await bcrypt.hash(dto.password, 10);
+    const tempPassword = generateRandomPassword();
 
-    // 3. Kullanıcı Oluştur (Role: MEMBER)
+    // Parola Hash
+    const hash = await bcrypt.hash(tempPassword, 10);
+
+    // Kullanıcı Oluştur (Role: MEMBER)
     const newUser = this.userRepository.create({
       username: dto.phoneNumber,
       password: hash,
       role: UserTypes.MEMBER, //Rol MEMBER olacak
       tenantId: tenantId,
       isActive: true, // Varsayılan olarak aktif
+      phoneNumber,
     });
     const savedUser = await this.userRepository.save(newUser);
 
-    // 4. Member Oluştur
+    // Member Oluştur
     const newMember = this.memberRepository.create({
       tenantId: tenantId,
       userId: savedUser.id.toString(),
       firstName: dto.firstName,
       lastName: dto.lastName,
-      phoneNumber: dto.phoneNumber,
+      phoneNumber,
       dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : undefined,
       emergencyContact: dto.emergencyContact,
       status: 'active',
@@ -169,12 +175,19 @@ export class AuthService {
     });
     await this.memberRepository.save(newMember);
 
-    // 5. Başarı Yanıtı
+    // Şifreyi SMS Gönder
+
+    // await this.smsService.sendSms(
+    //   newMember.phoneNumber,
+    //   `Hoş geldiniz! Giriş şifreniz: ${tempPassword}`,
+    // );
+
     return {
       memberId: newMember.id,
       userId: savedUser.id,
       tenantId: tenantId,
       username: savedUser.username,
+      password: tempPassword, // Sadece denemek için, KALDIRILACAK!
     };
   }
 

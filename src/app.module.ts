@@ -12,6 +12,7 @@ import databaseConfig from './common/config/database.config';
 import jwtConfig from './common/config/jwt.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { BullModule } from '@nestjs/bullmq';
+import { SmsModule } from './modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { BullModule } from '@nestjs/bullmq';
     //Feature modules
     AuthModule,
     QrModule,
+    SmsModule,
   ],
 
   providers: [

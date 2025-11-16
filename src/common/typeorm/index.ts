@@ -5,6 +5,7 @@ import { PackageEntity } from './package.entity';
 import { QrToken } from './qr-token.entity';
 import { TenantEntity } from './tenant.entity';
 import { UserEntity } from './user.entity';
+import { VerificationCode } from './verification-code.entity';
 
 const entities = [
   UserEntity,
@@ -14,6 +15,7 @@ const entities = [
   QrToken,
   EntryEntity,
   PackageEntity,
+  VerificationCode,
 ];
 export {
   UserEntity,
@@ -23,5 +25,6 @@ export {
   QrToken,
   EntryEntity,
   PackageEntity,
+  VerificationCode,
 };
 export default entities;

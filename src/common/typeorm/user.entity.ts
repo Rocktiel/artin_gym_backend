@@ -40,4 +40,7 @@ export class UserEntity extends BaseEntity {
     default: UserTypes.MEMBER,
   })
   role: UserTypes;
+
+  @Column({ name: 'phone_number', type: 'varchar', length: 20 })
+  phoneNumber?: string;
 }

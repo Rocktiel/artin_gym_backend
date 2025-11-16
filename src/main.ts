@@ -5,6 +5,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import basicAuth from 'express-basic-auth';
+import { ThrottlerGuard } from '@nestjs/throttler';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);

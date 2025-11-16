@@ -18,6 +18,9 @@ export class TenantEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   address?: string;
 
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phoneNumber?: string;
+
   @OneToMany(() => UserEntity, (user) => user.tenant)
   users: UserEntity[];
 

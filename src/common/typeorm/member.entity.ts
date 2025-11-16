@@ -80,4 +80,9 @@ export class MemberEntity extends BaseEntity {
   // Üyenin mevcut üyelik
   @OneToMany(() => MembershipEntity, (membership) => membership.member)
   memberships: MembershipEntity[];
+
+  // Üye içeride mi?
+
+  @Column({ name: 'is_inside', type: 'boolean', default: false })
+  isInside: boolean;
 }

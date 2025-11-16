@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
 import { QrModule } from './modules/qr/qr.module';
-import { APP_FILTER } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import { LoggerService } from './common/logger/logger.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,11 +10,28 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 import databaseConfig from './common/config/database.config';
 import jwtConfig from './common/config/jwt.config';
-import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { BullModule } from '@nestjs/bullmq';
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 30000, //ms = 30s
+          limit: 30,
+        },
+      ],
+    }),
+
+    // ScheduleModule.forRoot(),
+    BullModule.forRoot({
+      connection: {
+        host: 'localhost',
+        port: 6379,
+      },
+    }),
+
     ConfigModule.forRoot({
       cache: true,
       isGlobal: true,
@@ -60,7 +77,15 @@ import { ScheduleModule } from '@nestjs/schedule';
 
   providers: [
     LoggerService,
-    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

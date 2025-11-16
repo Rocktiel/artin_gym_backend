@@ -11,6 +11,7 @@ import { MemberEntity } from 'src/common/typeorm';
 import { EntryEntity } from 'src/common/typeorm/entry.entity';
 import { QrToken } from 'src/common/typeorm/qr-token.entity';
 import { Repository } from 'typeorm';
+import { AutoExitProducer } from './cron/auto-exit.producer';
 
 @Injectable()
 export class QrService {
@@ -22,6 +23,8 @@ export class QrService {
     private readonly memberRepo: Repository<MemberEntity>,
     @InjectRepository(EntryEntity)
     private readonly entryRepo: Repository<EntryEntity>,
+
+    private readonly autoExitProducer: AutoExitProducer,
   ) {}
 
   // QR Token üretir
@@ -115,6 +118,7 @@ export class QrService {
       qr.used_at = new Date();
       await this.qrTokenRepo.save(qr);
 
+      const member = qr.member;
       // Son işlem
       const lastEntry = await this.entryRepo.findOne({
         where: {
@@ -138,6 +142,13 @@ export class QrService {
           }),
         );
 
+        // Member inside durumunu false yap
+        member.isInside = false;
+        await this.memberRepo.save(member);
+
+        // Otomatik EXIT oluşturma Job kaldırır
+        await this.autoExitProducer.removeAutoExitJob(memberId.toString());
+
         return {
           message: 'EXIT recorded.',
           entryType: EntryType.EXIT,
@@ -156,6 +167,17 @@ export class QrService {
           status: EntryStatus.SUCCESS,
           timestampUtc: new Date(),
         }),
+      );
+
+      // Member inside durumunu true yap
+      member.isInside = true;
+      await this.memberRepo.save(member);
+
+      // Otomatik EXIT oluşturma Job ekler
+      await this.autoExitProducer.addAutoExitJob(
+        memberId.toString(),
+        tenant_id.toString(),
+        1 * 60 * 1000, // 1 dakika test için
       );
 
       return {

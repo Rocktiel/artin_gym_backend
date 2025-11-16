@@ -33,31 +33,31 @@ export class RegisterRequestDto {
   })
   username: string;
 
-  @ApiProperty({
-    example: 'StrongPass123!',
-    description: 'Kullanıcının şifresi (en az 6 karakter)',
-  })
-  @MinLength(6, {
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.MIN_LENGTH,
-      { value: 6 },
-    ),
-  })
-  @MaxLength(50, {
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.MAX_LENGTH,
-      { value: 50 },
-    ),
-  })
-  @IsNotEmpty({
-    message: getValidationMessage(
-      DtoField.PASSWORD,
-      ValidationMessage.IS_NOT_EMPTY,
-    ),
-  })
-  password: string;
+  // @ApiProperty({
+  //   example: 'StrongPass123!',
+  //   description: 'Kullanıcının şifresi (en az 6 karakter)',
+  // })
+  // @MinLength(6, {
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.MIN_LENGTH,
+  //     { value: 6 },
+  //   ),
+  // })
+  // @MaxLength(50, {
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.MAX_LENGTH,
+  //     { value: 50 },
+  //   ),
+  // })
+  // @IsNotEmpty({
+  //   message: getValidationMessage(
+  //     DtoField.PASSWORD,
+  //     ValidationMessage.IS_NOT_EMPTY,
+  //   ),
+  // })
+  // password: string;
 
   @ApiProperty({
     example: 'Artin Gym',
@@ -84,4 +84,36 @@ export class RegisterRequestDto {
     ),
   })
   tenantName: string;
+
+  @ApiProperty({
+    example: '1234567890',
+    description: 'Kullanıcının telefon numarası (9 haneli)',
+  })
+  @MinLength(9, {
+    message: getValidationMessage(
+      DtoField.PHONE,
+      ValidationMessage.MIN_LENGTH,
+      { value: 9 },
+    ),
+  })
+  @MaxLength(11, {
+    message: getValidationMessage(
+      DtoField.PHONE,
+      ValidationMessage.MAX_LENGTH,
+      { value: 11 },
+    ),
+  })
+  phoneNumber: string;
+
+  @ApiProperty({
+    example: 'Artin Gym',
+    description: 'Tenant (şirket/organizasyon) adresi',
+  })
+  @IsNotEmpty({
+    message: getValidationMessage(
+      DtoField.ADDRESS,
+      ValidationMessage.IS_NOT_EMPTY,
+    ),
+  })
+  address: string;
 }

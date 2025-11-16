@@ -14,12 +14,12 @@ export class AutoExitService {
     private readonly entryRepo: Repository<EntryEntity>,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async autoExitMembers() {
     this.logger.log('Running auto-exit cron...');
 
     // Denemek için 1 dakika 3 saat için:  3 * 60 * 60 * 1000
-    const threeHoursAgo = new Date(Date.now() - 1 * 60 * 1000);
+    const threeHoursAgo = new Date(Date.now() - 3 * 60 * 60 * 1000);
 
     // 3 saatten eski tüm ENTRY'leri çek
     const oldEntries = await this.entryRepo.find({

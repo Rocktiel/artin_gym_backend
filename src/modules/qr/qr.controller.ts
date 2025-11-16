@@ -14,6 +14,7 @@ import { BaseResponse } from 'src/base/response/base.response';
 import { ResponseMessages } from 'src/common/enums/ResponseMessages.enum';
 import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 import { VerifyQrRequestDto } from './dto/request/verify-qr.request.dto';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
 
 @Controller('qr')
 // @UseGuards(JwtAuthGuard, RolesGuard)
@@ -21,6 +22,7 @@ export class QrController {
   constructor(private readonly qrService: QrService) {}
 
   // QR token üretir
+  @SkipThrottle() // Rate limiti devre dışı bırak
   @Post('generate/:memberId')
   async generateQr(@Param('memberId') memberId: string) {
     try {

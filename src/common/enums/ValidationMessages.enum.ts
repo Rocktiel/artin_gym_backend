@@ -14,6 +14,7 @@ export enum DtoField {
   END_TIME = 'END_TIME',
   TENANT_NAME = 'TENANT_NAME',
   USERNAME = 'USERNAME',
+  ADDRESS = 'ADDRESS',
 }
 
 // Doğrulama türleri

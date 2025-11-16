@@ -23,6 +23,7 @@ import { UserTypes } from 'src/common/enums/UserTypes.enums';
 import { JwtAuthGuard } from 'src/common/guard/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guard/roles.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -30,6 +31,7 @@ export class AuthController {
 
   // Kullanıcı giriş işlemi
 
+  @Throttle({ default: { limit: 4, ttl: 30000 } }) // 30 saniyede 4 kez giriş deneme sınırı
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Kullanıcı girişi yapar' })
@@ -71,11 +73,7 @@ export class AuthController {
   })
   async register(@Body() dto: RegisterRequestDto): Promise<BaseResponse<any>> {
     try {
-      const result = await this.authService.register(
-        dto.username,
-        dto.password,
-        dto.tenantName,
-      );
+      const result = await this.authService.register(dto);
 
       return new BaseResponse(result, true, ResponseMessages.REGISTER_SUCCESS);
     } catch (error) {
@@ -110,6 +108,25 @@ export class AuthController {
         throw error;
       }
       throw new BadRequestException('Üye kaydı başarısız oldu.');
+    }
+  }
+
+  @Post('change-password')
+  @UseGuards(JwtAuthGuard) // Önce kimlik doğrula, sonra rolü kontrol et
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Mevcut bir işletmeye yeni üye kaydeder' })
+  async changePassword(
+    @Body('userId') userId: number, // Token'dan kullanıcı ID'sini al
+    @Body('newPassword') newPassword: string,
+  ): Promise<BaseResponse<any>> {
+    try {
+      const result = await this.authService.changePassword(userId, newPassword);
+      return new BaseResponse(result, true, 'Parola basarıyla degistirildi.');
+    } catch (error) {
+      if (error.getStatus) {
+        throw error;
+      }
+      throw new BadRequestException('Parola degistirme basarısız oldu.');
     }
   }
 }

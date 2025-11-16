@@ -14,6 +14,7 @@ import { JwtPayload } from 'src/common/payloads/jwt.payload';
 import { MemberEntity, TenantEntity, UserEntity } from 'src/common/typeorm';
 import { UserTypes } from 'src/common/enums/UserTypes.enums';
 import { RegisterMemberRequestDto } from './dto/request/register-member.request.dto';
+import { RegisterRequestDto } from './dto/request/register.request.dto';
 
 @Injectable()
 export class AuthService {
@@ -77,10 +78,10 @@ export class AuthService {
   }
 
   // Yeni tenant oluşturur
-  async register(username: string, password: string, tenantName: string) {
-    // Email kontrolü
+  async register(dto: RegisterRequestDto) {
+    // Username kontrolü
     const existingUser = await this.userRepository.findOne({
-      where: { username },
+      where: { username: dto.username },
     });
     if (existingUser) {
       throw new BadRequestException('Bu username zaten kullanılmakta.');
@@ -88,24 +89,28 @@ export class AuthService {
 
     // Tenant kontrolü
     const existingTenant = await this.tenants.findOne({
-      where: { name: tenantName },
+      where: { name: dto.tenantName },
     });
     if (existingTenant) {
       throw new BadRequestException(
-        `“${tenantName}” adında bir işletme zaten mevcut.`,
+        `“${dto.tenantName}” adında bir işletme zaten mevcut.`,
       );
     }
 
     // Yeni tenant oluştur
-    const tenant = this.tenants.create({ name: tenantName });
+    const tenant = this.tenants.create({
+      name: dto.tenantName,
+      address: dto.address,
+      phoneNumber: dto.phoneNumber,
+    });
     await this.tenants.save(tenant);
 
     // Parola hash
-    const hash = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(dto.phoneNumber, 10);
 
     // Kullanıcı oluştur
     const user = this.userRepository.create({
-      username,
+      username: dto.username,
       password: hash,
       role: UserTypes.COMPANY_ADMIN,
       tenant,
@@ -171,5 +176,13 @@ export class AuthService {
       tenantId: tenantId,
       username: savedUser.username,
     };
+  }
+
+  async changePassword(userId: number, newPassword: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new UnauthorizedException('User not found');
+    const hash = await bcrypt.hash(newPassword, 10);
+    user.password = hash;
+    await this.userRepository.save(user);
   }
 }
